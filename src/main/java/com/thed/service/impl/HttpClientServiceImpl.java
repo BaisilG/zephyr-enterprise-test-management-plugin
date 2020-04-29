@@ -5,8 +5,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -48,7 +50,7 @@ public class HttpClientServiceImpl implements HttpClientService {
         return new String(byteArray, StandardCharsets.UTF_8);
     }
 
-    public String authenticationGetRequest(String url, String username, String password) {
+    public String authenticationGetRequest(String url, String username, String password) throws IOException, AuthenticationException {
         if(StringUtils.isEmpty(url)) {
             return null;
         }
@@ -65,18 +67,19 @@ public class HttpClientServiceImpl implements HttpClientService {
 
             if(response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() <= 299) {
                 return convertInputStreamToString(response.getEntity().getContent());
+            } else {
+                throw new HttpResponseException(response.getStatusLine().getStatusCode(), "Authentication GET: " + url + "\n" + "Response: " + convertInputStreamToString(response.getEntity().getContent()));
             }
 
         }catch(Exception e) {
             e.printStackTrace();
+            throw e;
         }
-
-        return null;
 
     }
 
     @Override
-    public String getRequest(String url) {
+    public String getRequest(String url) throws IOException {
         if(StringUtils.isEmpty(url)) {
             return null;
         }
@@ -88,18 +91,19 @@ public class HttpClientServiceImpl implements HttpClientService {
             HttpResponse response = httpClient.execute(httpGet);
             if(response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() <= 299) {
                 return convertInputStreamToString(response.getEntity().getContent());
+            } else {
+                throw new HttpResponseException(response.getStatusLine().getStatusCode(), "GET: " + url + "\n" + "Response:" + convertInputStreamToString(response.getEntity().getContent()));
             }
 
         }catch(Exception e) {
             e.printStackTrace();
+            throw e;
         }
-
-        return null;
 
     }
 
     @Override
-    public String postRequest(String url, String content) {
+    public String postRequest(String url, String content) throws IOException {
         StringEntity stringEntity = null;
         if(!StringUtils.isEmpty(content)) {
             stringEntity = new StringEntity(content, ContentType.APPLICATION_JSON);
@@ -108,7 +112,7 @@ public class HttpClientServiceImpl implements HttpClientService {
     }
 
     @Override
-    public String postRequest(String url, HttpEntity httpEntity) {
+    public String postRequest(String url, HttpEntity httpEntity) throws IOException {
         if(StringUtils.isEmpty(url)) {
             return null;
         }
@@ -129,17 +133,20 @@ public class HttpClientServiceImpl implements HttpClientService {
             HttpResponse response = httpClient.execute(httpPost);
             if(response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() <= 299) {
                 return convertInputStreamToString(response.getEntity().getContent());
+            } else {
+                throw new HttpResponseException(response.getStatusLine().getStatusCode(), "POST: " + url
+                        + "\n" + "Payload: " + (httpEntity != null ? convertInputStreamToString(httpEntity.getContent()) : "")
+                        + "\nResponse: " + convertInputStreamToString(response.getEntity().getContent()));
             }
 
         }catch(Exception e) {
             e.printStackTrace();
+            throw e;
         }
-
-        return null;
     }
 
     @Override
-    public String putRequest(String url, String content) {
+    public String putRequest(String url, String content) throws IOException {
         if(StringUtils.isEmpty(url)) {
             return null;
         }
@@ -156,13 +163,16 @@ public class HttpClientServiceImpl implements HttpClientService {
             HttpResponse response = httpClient.execute(httpPut);
             if(response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() <= 299) {
                 return convertInputStreamToString(response.getEntity().getContent());
+            } else {
+                throw new HttpResponseException(response.getStatusLine().getStatusCode(), "PUT: " + url
+                        + "\n" + "Payload: " + content
+                        + "\nResponse: " + convertInputStreamToString(response.getEntity().getContent()));
             }
 
         }catch(Exception e) {
             e.printStackTrace();
+            throw e;
         }
-
-        return null;
     }
 
     @Override

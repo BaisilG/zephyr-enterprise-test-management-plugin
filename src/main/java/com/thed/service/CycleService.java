@@ -4,6 +4,7 @@ import com.thed.model.Cycle;
 import com.thed.model.CyclePhase;
 import com.thed.model.TCRCatalogTreeTestcase;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -12,16 +13,16 @@ import java.util.List;
  */
 public interface CycleService extends BaseService {
 
-    List<Cycle> getAllCyclesForReleaseId(Long releaseId) throws URISyntaxException;
+    List<Cycle> getAllCyclesForReleaseId(Long releaseId) throws URISyntaxException, IOException;
 
-    Cycle createCycle(Cycle cycle) throws URISyntaxException;
+    Cycle createCycle(Cycle cycle) throws URISyntaxException, IOException;
 
-    Cycle getCycleById(Long cycleId) throws URISyntaxException;
+    Cycle getCycleById(Long cycleId) throws URISyntaxException, IOException;
 
-    CyclePhase createCyclePhase(CyclePhase cyclePhase) throws URISyntaxException;
+    CyclePhase createCyclePhase(CyclePhase cyclePhase) throws URISyntaxException, IOException;
 
-    Integer assignCyclePhaseToCreator(Long cyclePhaseId) throws URISyntaxException;
+    Integer assignCyclePhaseToCreator(Long cyclePhaseId) throws URISyntaxException, IOException;
 
-    String addTestcasesToFreeFormCyclePhase(CyclePhase cyclePhase, List<TCRCatalogTreeTestcase> testcases, Boolean includeHierarchy) throws URISyntaxException;
+    String addTestcasesToFreeFormCyclePhase(CyclePhase cyclePhase, List<TCRCatalogTreeTestcase> testcases, Boolean includeHierarchy) throws URISyntaxException, IOException;
 
 }

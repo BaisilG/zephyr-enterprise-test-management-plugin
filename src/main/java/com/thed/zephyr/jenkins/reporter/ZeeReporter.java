@@ -44,6 +44,7 @@ import java.util.*;
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.HttpResponseException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.FileSet;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -66,6 +67,7 @@ public class ZeeReporter extends Notifier implements SimpleBuildStep {
     private String resultXmlFilePath;
     private Long eggplantParserIndex = 3l;
     private String parserTemplateKey;
+    private String workspacePath;
 
 
 	public static PrintStream logger;
@@ -74,7 +76,6 @@ public class ZeeReporter extends Notifier implements SimpleBuildStep {
     private static final String SUREFIRE_REPORT = "surefire-reports";
     private static final String JUNIT_SFX = "/*.xml";
 	private final String pInfo = String.format("%s [INFO]", PluginName);
-    private String jenkinsProjectName;
 
 
     private UserService userService = new UserServiceImpl();
@@ -110,14 +111,14 @@ public class ZeeReporter extends Notifier implements SimpleBuildStep {
 
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
-        jenkinsProjectName = workspace.getName();
+        workspacePath = workspace.getRemote();
         perform(run, listener);
     }
 
     @Override
     public boolean perform(final AbstractBuild build, final Launcher launcher,
                            final BuildListener listener) throws IOException, InterruptedException {
-        jenkinsProjectName = ((FreeStyleBuild) build).getProject().getName();
+        workspacePath = build.getWorkspace().getRemote();
         return perform(build, listener);
     }
 
@@ -178,7 +179,7 @@ public class ZeeReporter extends Notifier implements SimpleBuildStep {
 
             Set<String> xmlFiles = new HashSet<>();
 
-            List<String> resultFilePathList = getAllIncludedFilePathList(getWorkspacePath(), resultXmlFilePath);
+            List<String> resultFilePathList = getAllIncludedFilePathList(workspacePath, resultXmlFilePath);
 
             for(String resultFilePath : resultFilePathList) {
                 if(Objects.equals(zephyrConfigModel.getParserTemplateId(), eggplantParserIndex)) {
@@ -337,7 +338,9 @@ public class ZeeReporter extends Notifier implements SimpleBuildStep {
             }
 
             attachmentService.addAttachments(AttachmentService.ItemType.releaseTestSchedule, testcaseAttachmentsMap, statusAttachmentMap);
-            executionService.addTestStepResults(testStepResultList);
+            if(!testStepResultList.isEmpty()) {
+                executionService.addTestStepResults(testStepResultList);
+            }
             executionService.executeReleaseTestSchedules(executionMap.get(Boolean.TRUE), Boolean.TRUE);
             executionService.executeReleaseTestSchedules(executionMap.get(Boolean.FALSE), Boolean.FALSE);
         }
@@ -356,7 +359,7 @@ public class ZeeReporter extends Notifier implements SimpleBuildStep {
 		return true;
 	}
 
-    private Map<String, TCRCatalogTreeDTO> createPackagePhaseMap(ZephyrConfigModel zephyrConfigModel) throws URISyntaxException {
+    private Map<String, TCRCatalogTreeDTO> createPackagePhaseMap(ZephyrConfigModel zephyrConfigModel) throws URISyntaxException, IOException {
 
         List<TCRCatalogTreeDTO> tcrCatalogTreeDTOList = tcrCatalogTreeService.getTCRCatalogTreeNodes(ZephyrConstants.TCR_CATALOG_TREE_TYPE_PHASE, zephyrConfigModel.getReleaseId());
 
@@ -430,7 +433,7 @@ public class ZeeReporter extends Notifier implements SimpleBuildStep {
         return packagePhaseMap;
     }
 
-    private Map<CaseResult, TCRCatalogTreeTestcase> createTestcases(ZephyrConfigModel zephyrConfigModel, Map<String, TCRCatalogTreeDTO> packagePhaseMap) throws URISyntaxException {
+    private Map<CaseResult, TCRCatalogTreeTestcase> createTestcases(ZephyrConfigModel zephyrConfigModel, Map<String, TCRCatalogTreeDTO> packagePhaseMap) throws URISyntaxException, IOException {
 
         Map<CaseResult, TCRCatalogTreeTestcase> existingTestcases = new HashMap<>();
         Map<Long, List<CaseResult>> testcasesToBeCreated = new HashMap<>(); // treeId -> caseResult
@@ -505,7 +508,7 @@ public class ZeeReporter extends Notifier implements SimpleBuildStep {
         return existingTestcases;
     }
 
-    private List<TCRCatalogTreeTestcase> createTestcasesWithoutDuplicate(Map<Long, List<Testcase>> treeIdTestcaseMap) throws URISyntaxException {
+    private List<TCRCatalogTreeTestcase> createTestcasesWithoutDuplicate(Map<Long, List<Testcase>> treeIdTestcaseMap) throws URISyntaxException, IOException {
 
         List<TCRCatalogTreeTestcase> existingTestcases = new ArrayList<>();
         Map<Long, List<Testcase>> toBeCreatedTestcases = new HashMap<>();
@@ -934,14 +937,6 @@ public class ZeeReporter extends Notifier implements SimpleBuildStep {
         List<String> xmlFilePaths = new ArrayList<>();
         eggPlantMap.forEach((key, value) -> xmlFilePaths.add(value.getXmlResultFile()));
         return xmlFilePaths;
-    }
-
-    private String resolveRelativeFilePath(String resultXmlFilePath) {
-        return Jenkins.get().getWorkspaceFor(Jenkins.get().getItem(jenkinsProjectName)) + File.separator + resultXmlFilePath;
-    }
-
-    private String getWorkspacePath() {
-        return Jenkins.get().getWorkspaceFor(Jenkins.get().getItem(jenkinsProjectName)).toString();
     }
 
     private List<String> getAllIncludedFilePathList(String basePath, String includes) {

@@ -5,6 +5,7 @@ import com.thed.model.TestStepResult;
 import com.thed.service.ExecutionService;
 import com.thed.utils.ZephyrConstants;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +21,12 @@ public class ExecutionServiceImpl extends BaseServiceImpl implements ExecutionSe
     }
 
     @Override
-    public List<ReleaseTestSchedule> getReleaseTestSchedules(Long cyclePhaseId) throws URISyntaxException {
+    public List<ReleaseTestSchedule> getReleaseTestSchedules(Long cyclePhaseId) throws URISyntaxException, IOException {
         return zephyrRestService.getReleaseTestSchedules(cyclePhaseId);
     }
 
     @Override
-    public List<ReleaseTestSchedule> executeReleaseTestSchedules(Set<Long> rtsIds, boolean pass) throws URISyntaxException {
+    public List<ReleaseTestSchedule> executeReleaseTestSchedules(Set<Long> rtsIds, boolean pass) throws URISyntaxException, IOException {
         if(rtsIds.isEmpty()) {
             return new ArrayList<>();
         }
@@ -33,7 +34,7 @@ public class ExecutionServiceImpl extends BaseServiceImpl implements ExecutionSe
     }
 
     @Override
-    public List<TestStepResult> addTestStepResults(List<TestStepResult> testStepResults) throws URISyntaxException {
+    public List<TestStepResult> addTestStepResults(List<TestStepResult> testStepResults) throws URISyntaxException, IOException {
         return zephyrRestService.addTestStepsResults(testStepResults);
     }
 

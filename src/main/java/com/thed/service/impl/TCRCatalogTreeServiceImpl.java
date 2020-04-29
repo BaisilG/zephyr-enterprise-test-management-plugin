@@ -4,6 +4,7 @@ import com.thed.model.TCRCatalogTreeDTO;
 import com.thed.service.TCRCatalogTreeService;
 import com.thed.utils.ZephyrConstants;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -17,22 +18,22 @@ public class TCRCatalogTreeServiceImpl extends BaseServiceImpl implements TCRCat
     }
 
     @Override
-    public List<TCRCatalogTreeDTO> getTCRCatalogTreeNodes(String type, Long releaseId) throws URISyntaxException {
+    public List<TCRCatalogTreeDTO> getTCRCatalogTreeNodes(String type, Long releaseId) throws URISyntaxException, IOException {
         return zephyrRestService.getTCRCatalogTreeNodes(type, 0l, releaseId);
     }
 
     @Override
-    public TCRCatalogTreeDTO getTCRCatalogTreeNode(Long tcrCatalogTreeId) throws URISyntaxException {
+    public TCRCatalogTreeDTO getTCRCatalogTreeNode(Long tcrCatalogTreeId) throws URISyntaxException, IOException {
         return zephyrRestService.getTCRCatalogTreeNode(tcrCatalogTreeId);
     }
 
     @Override
-    public TCRCatalogTreeDTO createTCRCatalogTreeNode(TCRCatalogTreeDTO tcrCatalogTreeDTO) throws URISyntaxException {
+    public TCRCatalogTreeDTO createTCRCatalogTreeNode(TCRCatalogTreeDTO tcrCatalogTreeDTO) throws URISyntaxException, IOException {
         return zephyrRestService.createTCRCatalogTreeNode(tcrCatalogTreeDTO);
     }
 
     @Override
-    public TCRCatalogTreeDTO createPhase(String name, String description, Long releaseId, Long parentId) throws URISyntaxException {
+    public TCRCatalogTreeDTO createPhase(String name, String description, Long releaseId, Long parentId) throws URISyntaxException, IOException {
         TCRCatalogTreeDTO tcrCatalogTreeDTO = new TCRCatalogTreeDTO();
         tcrCatalogTreeDTO.setName(name);
         tcrCatalogTreeDTO.setDescription(description);

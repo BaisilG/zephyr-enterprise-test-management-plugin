@@ -23,6 +23,7 @@ import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
 import hudson.util.*;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.logging.Level;
@@ -33,6 +34,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.auth.AuthenticationException;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.QueryParameter;
@@ -170,11 +172,11 @@ public class ZeeDescriptor extends BuildStepDescriptor<Publisher> {
 	}
 
 	public ListBoxModel doFillProjectKeyItems(
-			@QueryParameter String serverAddress) {
+			@QueryParameter String serverAddress) throws URISyntaxException, IOException, AuthenticationException {
 		return fetchProjectList(serverAddress);
 	}
 
-	private ListBoxModel fetchProjectList(String serverAddress) {
+	private ListBoxModel fetchProjectList(String serverAddress) throws AuthenticationException, IOException, URISyntaxException {
 		ListBoxModel m = new ListBoxModel();
 
 		if (StringUtils.isBlank(serverAddress)) {
@@ -199,6 +201,7 @@ public class ZeeDescriptor extends BuildStepDescriptor<Publisher> {
         catch(Exception e) {
             //Todo: handle exceptions gracefully
             e.printStackTrace();
+            throw e;
         }
 
 		return m;
@@ -226,13 +229,13 @@ public class ZeeDescriptor extends BuildStepDescriptor<Publisher> {
 
 	public ListBoxModel doFillReleaseKeyItems(
 			@QueryParameter String projectKey,
-			@QueryParameter String serverAddress) {
+			@QueryParameter String serverAddress) throws AuthenticationException, IOException, URISyntaxException {
 
 		return fetchReleaseList(projectKey, serverAddress);
 
 	}
 
-	private ListBoxModel fetchReleaseList(String projectKey, String serverAddress) {
+	private ListBoxModel fetchReleaseList(String projectKey, String serverAddress) throws IOException, URISyntaxException, AuthenticationException {
 		ListBoxModel listBoxModel = new ListBoxModel();
 
 		if (StringUtils.isBlank(serverAddress)) {
@@ -260,13 +263,14 @@ public class ZeeDescriptor extends BuildStepDescriptor<Publisher> {
         catch(Exception e) {
             //todo: handle exception gracefully
             e.printStackTrace();
+            throw e;
         }
 
 		return listBoxModel;
 	}
 
 	public ListBoxModel doFillCycleKeyItems(@QueryParameter String releaseKey, @QueryParameter String projectKey,
-											@QueryParameter String serverAddress) {
+											@QueryParameter String serverAddress) throws IOException, URISyntaxException, AuthenticationException {
 
 		ListBoxModel listBoxModel = new ListBoxModel();
 		
@@ -311,6 +315,7 @@ public class ZeeDescriptor extends BuildStepDescriptor<Publisher> {
         catch(Exception e) {
             //todo: handle exceptions gracefully
             e.printStackTrace();
+            throw e;
         }
 
 		listBoxModel.add("New Cycle", NEW_CYCLE_KEY);
@@ -320,7 +325,7 @@ public class ZeeDescriptor extends BuildStepDescriptor<Publisher> {
 
 	public ListBoxModel doFillCycleDurationItems(
 			@QueryParameter String serverAddress,
-			@QueryParameter String projectKey) {
+			@QueryParameter String projectKey) throws URISyntaxException, IOException, AuthenticationException {
 
 		ListBoxModel listBoxModel = new ListBoxModel();
 
@@ -368,7 +373,7 @@ public class ZeeDescriptor extends BuildStepDescriptor<Publisher> {
 		return listBoxModel;
 	}
 
-    public ListBoxModel doFillParserTemplateKeyItems(@QueryParameter String serverAddress) throws URISyntaxException {
+    public ListBoxModel doFillParserTemplateKeyItems(@QueryParameter String serverAddress) throws URISyntaxException, IOException, AuthenticationException {
         ListBoxModel listBoxModel = new ListBoxModel();
 
         if (StringUtils.isBlank(serverAddress)) {
@@ -391,12 +396,13 @@ public class ZeeDescriptor extends BuildStepDescriptor<Publisher> {
         } catch (Exception e) {
             //Todo: handle exceptions gracefully
             e.printStackTrace();
+            throw e;
         }
 
         return listBoxModel;
     }
 
-    private void loginUser(String serverAddress) throws URISyntaxException {
+    private void loginUser(String serverAddress) throws URISyntaxException, IOException, AuthenticationException {
         ZephyrInstance zephyrInstance = fetchZephyrInstance(serverAddress);
         StandardUsernamePasswordCredentials upCredentials = getCredentialsFromId(zephyrInstance.getCredentialsId());
         userService.login(zephyrInstance.getServerAddress(), upCredentials.getUsername(), upCredentials.getPassword().getPlainText());

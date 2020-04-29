@@ -1,5 +1,8 @@
 package com.thed.service;
 
+import org.apache.http.auth.AuthenticationException;
+
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 /**
@@ -14,7 +17,7 @@ public interface UserService extends BaseService {
      * @param password
      * @return
      */
-    public Boolean verifyCredentials(String serverAddress, String username, String password) throws URISyntaxException;
+    public Boolean verifyCredentials(String serverAddress, String username, String password) throws URISyntaxException, IOException, AuthenticationException;
 
     /**
      * Validates given credentials and keeps token and server address if verified.
@@ -23,6 +26,6 @@ public interface UserService extends BaseService {
      * @param password
      * @return
      */
-    public Boolean login(String serverAddress, String username, String password) throws URISyntaxException;
+    public Boolean login(String serverAddress, String username, String password) throws URISyntaxException, IOException, AuthenticationException;
 
 }

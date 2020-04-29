@@ -7,6 +7,7 @@ import com.thed.service.TestcaseService;
 import hudson.tasks.junit.CaseResult;
 import org.jaxen.pantry.Test;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -28,17 +29,17 @@ public class TestcaseServiceImpl extends BaseServiceImpl implements TestcaseServ
     }
 
     @Override
-    public List<TCRCatalogTreeTestcase> getTestcasesForTreeId(Long tcrCatalogTreeId) throws URISyntaxException {
+    public List<TCRCatalogTreeTestcase> getTestcasesForTreeId(Long tcrCatalogTreeId) throws URISyntaxException, IOException {
         return zephyrRestService.getTestcasesForTreeId(tcrCatalogTreeId);
     }
 
     @Override
-    public List<TCRCatalogTreeTestcase> createTestcases(List<TCRCatalogTreeTestcase> tcrCatalogTreeTestcases) throws URISyntaxException {
+    public List<TCRCatalogTreeTestcase> createTestcases(List<TCRCatalogTreeTestcase> tcrCatalogTreeTestcases) throws URISyntaxException, IOException {
         return zephyrRestService.createTestcases(tcrCatalogTreeTestcases);
     }
 
     @Override
-    public Map<CaseResult, TCRCatalogTreeTestcase> createTestcases(Map<Long, List<CaseResult>> treeIdCaseResultMap) throws URISyntaxException {
+    public Map<CaseResult, TCRCatalogTreeTestcase> createTestcases(Map<Long, List<CaseResult>> treeIdCaseResultMap) throws URISyntaxException, IOException {
 
         if(treeIdCaseResultMap == null || treeIdCaseResultMap.isEmpty()) {
             return new HashMap<>();
@@ -80,7 +81,7 @@ public class TestcaseServiceImpl extends BaseServiceImpl implements TestcaseServ
     }
 
     @Override
-    public List<TCRCatalogTreeTestcase> createTestcasesWithList(Map<Long, List<Testcase>> treeIdTestcaseMap) throws URISyntaxException {
+    public List<TCRCatalogTreeTestcase> createTestcasesWithList(Map<Long, List<Testcase>> treeIdTestcaseMap) throws URISyntaxException, IOException {
         List<TCRCatalogTreeTestcase> treeTestcases = new ArrayList<>();
         Set<Long> treeIds = treeIdTestcaseMap.keySet();
 

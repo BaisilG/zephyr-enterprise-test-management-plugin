@@ -6,6 +6,7 @@ import com.thed.model.*;
 import com.thed.service.HttpClientService;
 import com.thed.service.ZephyrRestService;
 import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthenticationException;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
@@ -14,6 +15,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -115,7 +117,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public Boolean verifyCredentials(String hostAddress, String username, String password) throws URISyntaxException {
+    public Boolean verifyCredentials(String hostAddress, String username, String password) throws URISyntaxException, IOException, AuthenticationException {
         Boolean res = login(hostAddress, username, password);
         if(res == Boolean.TRUE) {
             clear();
@@ -124,7 +126,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public Boolean login(String hostAddress, String username, String password) throws URISyntaxException {
+    public Boolean login(String hostAddress, String username, String password) throws URISyntaxException, IOException, AuthenticationException {
         String url = hostAddress + GET_CURRENT_USER_URL;
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("restVersion", restVersion);
@@ -139,7 +141,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public Project getProjectById(Long projectId) throws URISyntaxException {
+    public Project getProjectById(Long projectId) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("projectId", String.valueOf(projectId));
 
@@ -150,14 +152,14 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public Cycle createCycle(Cycle cycle) throws URISyntaxException {
+    public Cycle createCycle(Cycle cycle) throws URISyntaxException, IOException {
         String url = prepareUrl(CREATE_CYCLE_URL);
         String res = httpClientService.postRequest(url, gson.toJson(cycle));
         return gson.fromJson(res, Cycle.class);
     }
 
     @Override
-    public List<Project> getAllProjectsForCurrentUser() throws URISyntaxException {
+    public List<Project> getAllProjectsForCurrentUser() throws URISyntaxException, IOException {
         if(currentUser == null) {
             return null;
         }
@@ -173,7 +175,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<Release> getAllReleasesForProjectId(Long projectId) throws URISyntaxException {
+    public List<Release> getAllReleasesForProjectId(Long projectId) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("projectId", projectId.toString());
 
@@ -195,7 +197,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<Cycle> getAllCyclesForReleaseId(Long releaseId) throws URISyntaxException {
+    public List<Cycle> getAllCyclesForReleaseId(Long releaseId) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("releaseId", releaseId.toString());
 
@@ -207,7 +209,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<TCRCatalogTreeDTO> getTCRCatalogTreeNodes(String type, Long revisionId, Long releaseId) throws URISyntaxException {
+    public List<TCRCatalogTreeDTO> getTCRCatalogTreeNodes(String type, Long revisionId, Long releaseId) throws URISyntaxException, IOException {
         List<NameValuePair> queryParams = new ArrayList<>();
         queryParams.add(new BasicNameValuePair("type", type));
         queryParams.add(new BasicNameValuePair("revisionid", revisionId.toString()));
@@ -221,7 +223,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public TCRCatalogTreeDTO getTCRCatalogTreeNode(Long tcrCatalogTreeId) throws URISyntaxException {
+    public TCRCatalogTreeDTO getTCRCatalogTreeNode(Long tcrCatalogTreeId) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("tcrCatalogTreeId", tcrCatalogTreeId.toString());
 
@@ -232,7 +234,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public TCRCatalogTreeDTO createTCRCatalogTreeNode(TCRCatalogTreeDTO tcrCatalogTreeDTO) throws URISyntaxException {
+    public TCRCatalogTreeDTO createTCRCatalogTreeNode(TCRCatalogTreeDTO tcrCatalogTreeDTO) throws URISyntaxException, IOException {
         List<NameValuePair> queryParams = new ArrayList<>();
         queryParams.add(new BasicNameValuePair("parentid", tcrCatalogTreeDTO.getParentId().toString()));
         tcrCatalogTreeDTO.setParentId(null);
@@ -243,7 +245,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<String> mapTestcaseToRequirements(List<MapTestcaseToRequirement> mapTestcaseToRequirements) throws URISyntaxException {
+    public List<String> mapTestcaseToRequirements(List<MapTestcaseToRequirement> mapTestcaseToRequirements) throws URISyntaxException, IOException {
         String url = buildUrl(prepareUrl(MAP_TESTCASE_TO_REQUIREMENTS_URL), null, null);
         String res = httpClientService.postRequest(url, gson.toJson(mapTestcaseToRequirements));
         Type stringListType = new TypeToken<List<String>>(){}.getType();
@@ -251,7 +253,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<TCRCatalogTreeTestcase> getTestcasesForTreeId(Long tcrCatalogTreeId) throws URISyntaxException {
+    public List<TCRCatalogTreeTestcase> getTestcasesForTreeId(Long tcrCatalogTreeId) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("tcrCatalogTreeId", tcrCatalogTreeId.toString());
 
@@ -275,7 +277,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<TCRCatalogTreeTestcase> createTestcases(List<TCRCatalogTreeTestcase> tcrCatalogTreeTestcases) throws URISyntaxException {
+    public List<TCRCatalogTreeTestcase> createTestcases(List<TCRCatalogTreeTestcase> tcrCatalogTreeTestcases) throws URISyntaxException, IOException {
         String url = prepareUrl(CREATE_TESTCASES_BULK_URL);
         String res = httpClientService.postRequest(url, gson.toJson(tcrCatalogTreeTestcases));
 
@@ -284,7 +286,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public Cycle getCycleById(Long cycleId) throws URISyntaxException {
+    public Cycle getCycleById(Long cycleId) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("id", cycleId.toString());
 
@@ -294,7 +296,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public CyclePhase createCyclePhase(CyclePhase cyclePhase) throws URISyntaxException {
+    public CyclePhase createCyclePhase(CyclePhase cyclePhase) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("cycleId", cyclePhase.getCycleId().toString());
 
@@ -304,7 +306,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public String addTestcasesToFreeFormCyclePhase(CyclePhase cyclePhase, Map<Long, Set<Long>> treeTestcaseMap, Boolean includeHierarchy) throws URISyntaxException {
+    public String addTestcasesToFreeFormCyclePhase(CyclePhase cyclePhase, Map<Long, Set<Long>> treeTestcaseMap, Boolean includeHierarchy) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("cyclePhaseId", cyclePhase.getId().toString());
         pathParams.put("tcrCatalogTreeId", cyclePhase.getTcrCatalogTreeId().toString());
@@ -329,7 +331,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public Integer assignCyclePhaseToCreator(Long cyclePhaseId) throws URISyntaxException {
+    public Integer assignCyclePhaseToCreator(Long cyclePhaseId) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("cyclePhaseId", cyclePhaseId.toString());
 
@@ -339,7 +341,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<ReleaseTestSchedule> getReleaseTestSchedules(Long cyclePhaseId) throws URISyntaxException {
+    public List<ReleaseTestSchedule> getReleaseTestSchedules(Long cyclePhaseId) throws URISyntaxException, IOException {
         List<NameValuePair> queryParams = new ArrayList<>();
         queryParams.add(new BasicNameValuePair("cyclephaseid", cyclePhaseId.toString()));
         queryParams.add(new BasicNameValuePair("pagesize", "10000"));
@@ -356,7 +358,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<ReleaseTestSchedule> executeReleaseTestSchedules(Set<Long> rtsIds, String executionStatus) throws URISyntaxException {
+    public List<ReleaseTestSchedule> executeReleaseTestSchedules(Set<Long> rtsIds, String executionStatus) throws URISyntaxException, IOException {
         List<NameValuePair> queryParams = new ArrayList<>();
         queryParams.add(new BasicNameValuePair("status", executionStatus));
         queryParams.add(new BasicNameValuePair("testerid", getCurrentUser().getId().toString()));
@@ -375,7 +377,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<GenericAttachmentDTO> uploadAttachments(List<GenericAttachmentDTO> attachmentDTOs) throws URISyntaxException {
+    public List<GenericAttachmentDTO> uploadAttachments(List<GenericAttachmentDTO> attachmentDTOs) throws URISyntaxException, IOException {
         String url = buildUrl(prepareUrl(UPLOAD_ATTACHMENT_URL), null, null);
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
@@ -390,7 +392,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<Attachment> addAttachment(List<Attachment> attachments) throws URISyntaxException {
+    public List<Attachment> addAttachment(List<Attachment> attachments) throws URISyntaxException, IOException {
         String url = buildUrl(prepareUrl(ADD_ATTACHMENT_URL), null, null);
 
         String res = httpClientService.postRequest(url, gson.toJson(attachments));
@@ -399,7 +401,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public TestStep getTestStep(Long testcaseVersionId) throws URISyntaxException {
+    public TestStep getTestStep(Long testcaseVersionId) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("testcaseVersionId", testcaseVersionId.toString());
         String url = buildUrl(prepareUrl(GET_TEST_STEP_URL), pathParams, null);
@@ -408,7 +410,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public TestStep addTestStep(TestStep testStep) throws URISyntaxException {
+    public TestStep addTestStep(TestStep testStep) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("testcaseVersionId", testStep.getTcId().toString());
         pathParams.put("tctId", testStep.getTctId().toString());
@@ -418,7 +420,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<TestStepResult> addTestStepsResults(List<TestStepResult> testStepResults) throws URISyntaxException {
+    public List<TestStepResult> addTestStepsResults(List<TestStepResult> testStepResults) throws URISyntaxException, IOException {
         String url = buildUrl(prepareUrl(ADD_TEST_STEP_RESULT_URL), null, null);
         String res = httpClientService.postRequest(url, gson.toJson(testStepResults));
         Type type = new TypeToken<List<TestStepResult>>(){}.getType();
@@ -458,7 +460,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public List<ParserTemplate> getAllParserTemplates() throws URISyntaxException {
+    public List<ParserTemplate> getAllParserTemplates() throws URISyntaxException, IOException {
         String url = buildUrl(prepareUrl(GET_ALL_PARSER_TEMPLATES_URL), null, null);
         String res = httpClientService.getRequest(url);
 
@@ -467,7 +469,7 @@ public class ZephyrRestServiceImpl implements ZephyrRestService {
     }
 
     @Override
-    public ParserTemplate getParserTemplateById(Long templateId) throws URISyntaxException {
+    public ParserTemplate getParserTemplateById(Long templateId) throws URISyntaxException, IOException {
         Map<String, String> pathParams = new HashMap<>();
         pathParams.put("id", templateId.toString());
 
