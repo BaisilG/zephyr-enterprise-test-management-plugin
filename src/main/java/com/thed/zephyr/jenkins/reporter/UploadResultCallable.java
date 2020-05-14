@@ -90,7 +90,6 @@ public class UploadResultCallable extends MasterToSlaveFileCallable<Boolean> {
 
     @Override
     public Boolean invoke(File file, VirtualChannel channel) throws IOException, InterruptedException {
-        listener.getLogger().println("got in callable " + file);
         if (file != null && file.exists()) {
             workspaceFile = file;
             return perform(buildNumber, listener);
