@@ -50,32 +50,34 @@ public class CyclePhase extends BaseEntity {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        this.startDate = calendar.getTimeInMillis();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        setPhaseStartDate(dateFormat.format(startDate));
+    public void setStartDate(Long startDate) {
+        this.startDate = startDate;
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(startDate);
+//        calendar.set(Calendar.HOUR_OF_DAY, 0);
+//        calendar.set(Calendar.MINUTE, 0);
+//        calendar.set(Calendar.SECOND, 0);
+//        calendar.set(Calendar.MILLISECOND, 0);
+//        this.startDate = calendar.getTimeInMillis();
+//        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+//        setPhaseStartDate(dateFormat.format(startDate));
     }
 
     public Long getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(endDate);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        this.endDate = calendar.getTimeInMillis();
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        setPhaseEndDate(dateFormat.format(endDate));
+    public void setEndDate(Long endDate) {
+        this.endDate = endDate;
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(endDate);
+//        calendar.set(Calendar.HOUR_OF_DAY, 0);
+//        calendar.set(Calendar.MINUTE, 0);
+//        calendar.set(Calendar.SECOND, 0);
+//        calendar.set(Calendar.MILLISECOND, 0);
+//        this.endDate = calendar.getTimeInMillis();
+//        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+//        setPhaseEndDate(dateFormat.format(endDate));
     }
 
     public String getPhaseStartDate() {

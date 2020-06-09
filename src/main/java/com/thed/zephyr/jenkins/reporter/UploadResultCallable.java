@@ -198,7 +198,7 @@ public class UploadResultCallable extends MasterToSlaveFileCallable<Boolean> {
                 cycle.setName(cycleName);
                 cycle.setReleaseId(zephyrConfigModel.getReleaseId());
                 cycle.setBuild(String.valueOf(zephyrConfigModel.getBuilNumber()));
-                cycle.setStartDate(project.getStartDate());
+                cycle.setStartDate(project.getStartDate().getTime());
 
                 Date projectStartDate = project.getStartDate();
 
@@ -211,7 +211,7 @@ public class UploadResultCallable extends MasterToSlaveFileCallable<Boolean> {
                 } else if (zephyrConfigModel.getCycleDuration().equals("7 days")) {
                     calendar.add(Calendar.DAY_OF_MONTH, 6);
                 }
-                cycle.setEndDate(calendar.getTime());
+                cycle.setEndDate(calendar.getTime().getTime());
 
                 cycle = cycleService.createCycle(cycle);
                 zephyrConfigModel.setCycleId(cycle.getId());
@@ -222,8 +222,8 @@ public class UploadResultCallable extends MasterToSlaveFileCallable<Boolean> {
             CyclePhase cyclePhase = new CyclePhase();
             cyclePhase.setName(packagePhaseMap.get("parentPhase").getName());
             cyclePhase.setCycleId(cycle.getId());
-            cyclePhase.setStartDate(new Date(cycle.getStartDate()));
-            cyclePhase.setEndDate(new Date(cycle.getEndDate()));
+            cyclePhase.setStartDate(cycle.getStartDate());
+            cyclePhase.setEndDate(cycle.getEndDate());
             cyclePhase.setReleaseId(zephyrConfigModel.getReleaseId());
             cyclePhase.setFreeForm(true);
 
